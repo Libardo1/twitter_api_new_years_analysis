@@ -48,7 +48,7 @@ list(set(ids1).intersection(ids2))
 results = results1.values()[1] + results2.values()[1]
 len(results)
 
-# Ok, now let's automate this to get 50,000 results
+# Ok, now let's automate this to get 20,000 results
 data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
 data_all = data.values()[1]
 
@@ -70,8 +70,8 @@ len(ids) != len(set(ids))
 data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
 data_all = data.values()[1]
 
-while (len(data_all) <= 10000):
-    time.sleep(2)
+while (len(data_all) <= 20000):
+    time.sleep(4)
     last = data_all[-1]['id']
     data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed', max_id = last)
     data_all += data.values()[1][1:]
@@ -83,8 +83,6 @@ while (len(data_all) <= 10000):
 
 analyzer = SentimentIntensityAnalyzer()
 
-tweet_id = []
-user = []
 date = []
 tweet = []
 number_favourites = []
@@ -96,8 +94,6 @@ vs_neu = []
 vs_neg = []
 
 for i in range(0, len(data_all)):
-    tweet_id.append(data_all[i]['id'])
-    user.append(data_all[i]['user']['screen_name'])
     date.append(data_all[i]['created_at'])
     tweet.append(data_all[i]['text'])
     number_favourites.append(data_all[i]['favorite_count'])
@@ -108,8 +104,7 @@ for i in range(0, len(data_all)):
     vs_neu.append(analyzer.polarity_scores(data_all[i]['text'])['neu'])
     vs_neg.append(analyzer.polarity_scores(data_all[i]['text'])['neg'])
 
-twitter_df = DataFrame({'ID': tweet_id,
-                        'Date': date,
+twitter_df = DataFrame({'Date': date,
                         'Tweet': tweet,
                         'Favourites': number_favourites,
                         'Retweets': number_retweets,
@@ -118,12 +113,76 @@ twitter_df = DataFrame({'ID': tweet_id,
                         'Positive': vs_pos,
                         'Neutral': vs_neu,
                         'Negative': vs_neg})
-twitter_df = twitter_df[['ID', 'Date', 'Tweet', 'Favourites', 'Retweets', 'Timezone', 
+twitter_df = twitter_df[['Date', 'Tweet', 'Favourites', 'Retweets', 'Timezone', 
                         'Compound', 'Positive', 'Neutral', 'Negative']]
-twitter_df2 = twitter_df[['ID', 'Date', 'Favourites', 'Retweets', 'Timezone', 
-                        'Compound', 'Positive', 'Neutral', 'Negative']]
+#twitter_df2 = twitter_df[['ID', 'Date', 'Favourites', 'Retweets', 'Timezone', 
+#                        'Compound', 'Positive', 'Neutral', 'Negative']]
 
-twitter_df2.to_csv("/Users/jburchell/Documents/Twitter API analysis/Raw twitter data.csv",
-                  sep = ",", encoding = "utf-8")
+#twitter_df2.to_csv("/Users/jburchell/Documents/Twitter API analysis/Raw twitter data.csv",
+#                  sep = ",", encoding = "utf-8")
                         
 twitter_df[:20]
+
+twitter_df['Physical Health'] = np.where(twitter_df['Tweet'].str.contains('weight|fit|exercise|gym|muscle|health|water|smoking|alcohol|drinking|walk|run|swim', 
+    flags = re.IGNORECASE), 1, 0)
+twitter_df['Learning and Career'] = np.where(twitter_df['Tweet'].str.contains('business|job|career|professional|study|learn|develop|advance|grades|school|university|read|study|skill|education', 
+    flags = re.IGNORECASE), 1, 0)
+twitter_df['Mental Wellbeing'] = np.where(twitter_df['Tweet'].str.contains('positive|enjoy|happy|happiness|stress|depress|anxi|organised|organized|hobb|fun|psychologist|psychiatrist|sleep|meditate', 
+    flags = re.IGNORECASE), 1, 0)
+twitter_df['Finances'] = np.where(twitter_df['Tweet'].str.contains('save|saving|debt|credit|money|invest|wast|finance|frugal|\$', 
+    flags = re.IGNORECASE), 1, 0)
+twitter_df['Relationships'] = np.where(twitter_df['Tweet'].str.contains('relationship|friend|boyfriend|girlfriend|fiance|husband|wife|engaged|wedding|married|pregnant|child|kid|family|parent|father|dad|mother|mom|mum|brother|sister|dog|cat', 
+    flags = re.IGNORECASE), 1, 0)
+twitter_df['Travel and Holidays'] = np.where(twitter_df['Tweet'].str.contains('travel|trips|holiday|vacation|country|foreign|overseas|abroad', 
+    flags = re.IGNORECASE), 1, 0)
+    
+len(twitter_df[(twitter_df['Compound'] == 0)])
+twitter_df['Compound'][twitter_df['Physical Health'] == 1].mean()
+twitter_df['Compound'][twitter_df['Learning and Career'] == 1].mean()
+twitter_df['Compound'][twitter_df['Mental Wellbeing'] == 1].mean()
+twitter_df['Compound'][twitter_df['Finances'] == 1].mean()
+twitter_df['Compound'][twitter_df['Relationships'] == 1].mean()
+twitter_df['Compound'][twitter_df['Travel and Holidays'] == 1].mean()
+
+twitter_df['Compound'][(twitter_df['Physical Health'] == 1) & (twitter_df['Compound'] != 0)].mean()
+twitter_df['Compound'][(twitter_df['Learning and Career'] == 1) & (twitter_df['Compound'] != 0)].mean()
+twitter_df['Compound'][(twitter_df['Mental Wellbeing'] == 1) & (twitter_df['Compound'] != 0)].mean()
+twitter_df['Compound'][(twitter_df['Finances'] == 1) & (twitter_df['Compound'] != 0)].mean()
+twitter_df['Compound'][(twitter_df['Relationships'] == 1) & (twitter_df['Compound'] != 0)].mean()
+twitter_df['Compound'][(twitter_df['Travel and Holidays'] == 1) & (twitter_df['Compound'] != 0)].mean()
+
+twitter_df['Positive'][twitter_df['Physical Health'] == 1].mean()
+twitter_df['Positive'][twitter_df['Learning and Career'] == 1].mean()
+twitter_df['Positive'][twitter_df['Mental Wellbeing'] == 1].mean()
+twitter_df['Positive'][twitter_df['Finances'] == 1].mean()
+twitter_df['Positive'][twitter_df['Relationships'] == 1].mean()
+twitter_df['Positive'][twitter_df['Travel and Holidays'] == 1].mean()
+
+len(twitter_df[(twitter_df['Retweets'] == 0)])
+len(twitter_df[(twitter_df['Favourites'] == 0)])
+len(twitter_df[(twitter_df['Favourites'] == 0) & (twitter_df['Compound'] != 0)])
+len(twitter_df[(twitter_df['Favourites'] == 1)])
+
+len(twitter_df[(twitter_df['Compound'] == 0)])
+sum(twitter_df['Physical Health'])
+sum(twitter_df['Physical Health'][(twitter_df['Compound'] != 0)])
+
+twitter_df['Favourites'][twitter_df['Physical Health'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Physical Health'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+twitter_df['Favourites'][twitter_df['Learning and Career'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Learning and Career'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+twitter_df['Favourites'][twitter_df['Mental Wellbeing'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Mental Wellbeing'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+twitter_df['Favourites'][twitter_df['Finances'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Finances'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+twitter_df['Favourites'][twitter_df['Relationships'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Relationships'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+twitter_df['Favourites'][twitter_df['Travel and Holidays'] == 1].mean()
+twitter_df['Favourites'][(twitter_df['Travel and Holidays'] == 1) & (twitter_df['Favourites'] != 0)].mean()
+
+
