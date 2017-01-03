@@ -2,6 +2,7 @@
 import tweepy
 import json
 import time
+import scipy.stats as sp
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
@@ -185,4 +186,43 @@ twitter_df['Favourites'][(twitter_df['Relationships'] == 1) & (twitter_df['Favou
 twitter_df['Favourites'][twitter_df['Travel and Holidays'] == 1].mean()
 twitter_df['Favourites'][(twitter_df['Travel and Holidays'] == 1) & (twitter_df['Favourites'] != 0)].mean()
 
+twitter_df['Favourites'].mean()
+sp.trim_mean(twitter_df['Favourites'], 0.025)
+twitter_df['Favourites'].median()
+
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Physical Health'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Learning and Career'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Mental Wellbeing'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Finances'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Relationships'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+sp.trim_mean(twitter_df['Favourites'][(twitter_df['Travel and Holidays'] == 1) &
+    (twitter_df['Favourites'] != 0)], 0.025)
+    
+
+def calculatePercentFavourite(resolution, favourites):
+    number_with_favourites = float(len(twitter_df[(twitter_df[resolution] == 1) & (twitter_df['Favourites'] >= favourites)]))
+    total_number = float(len(twitter_df[(twitter_df[resolution] == 1)]))
+    return number_with_favourites / total_number * 100
+    
+calculatePercentFavourite('Physical Health', 5)
+calculatePercentFavourite('Learning and Career', 5)
+calculatePercentFavourite('Mental Wellbeing', 5)
+calculatePercentFavourite('Finances', 5)
+calculatePercentFavourite('Relationships', 5)
+calculatePercentFavourite('Travel and Holidays', 5)
+
+calculatePercentFavourite('Physical Health', 10)
+calculatePercentFavourite('Learning and Career', 10)
+calculatePercentFavourite('Mental Wellbeing', 10)
+calculatePercentFavourite('Finances', 10)
+calculatePercentFavourite('Relationships', 10)
+calculatePercentFavourite('Travel and Holidays', 10)
+
+
+        
 
