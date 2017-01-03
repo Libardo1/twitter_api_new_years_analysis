@@ -18,14 +18,14 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_key, access_secret)
 
 # Set search term
-searchquery = "new years resolution"
+searchquery = "new years resolution -RT"
 
 # Set up API call
 api = tweepy.API(auth, parser = tweepy.parsers.JSONParser())
 
 # The call only seems to return a max of 100 tweets. As such, I need to run multiple calls,
 # which start after the last tweet returned in the previous call (search options here: https://dev.twitter.com/rest/reference/get/search/tweets)
-results1 = api.search(q = searchquery, count = 1000, lang = 'en', result_type = 'mixed')
+results1 = api.search(q = searchquery, count = 1, lang = 'en', result_type = 'mixed')
 results1.values()[1][-1]['id']
 results2 = api.search(q = searchquery, count = 1000, lang = 'en', result_type = 'mixed', max_id = '816071127286083584')
 
@@ -70,24 +70,56 @@ len(ids) != len(set(ids))
 data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
 data_all = data.values()[1]
 
-while (len(data_all) <= 50000):
+while (len(data_all) <= 10000):
     time.sleep(2)
     last = data_all[-1]['id']
     data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed', max_id = last)
     data_all += data.values()[1][1:]
     
 # Feed into a dataframe
+analyzer = SentimentIntensityAnalyzer()
+
+tweet_id = []
+user = []
 date = []
 tweet = []
 number_favourites = []
 number_retweets = []
 timezone = []
+vs_compound = []
+vs_pos = [] 
+vs_neu = []
+vs_neg = []
 
 for i in range(0, len(data_all)):
+    tweet_id.append(data_all[i]['id'])
+    user.append(data_all[i]['user']['screen_name'])
     date.append(data_all[i]['created_at'])
     tweet.append(data_all[i]['text'])
     number_favourites.append(data_all[i]['favorite_count'])
     number_retweets.append(data_all[i]['retweet_count'])
     timezone.append(data_all[i]['user']['time_zone'])
+    vs_compound.append(analyzer.polarity_scores(data_all[i]['text'])['compound'])
+    vs_pos.append(analyzer.polarity_scores(data_all[i]['text'])['pos']) 
+    vs_neu.append(analyzer.polarity_scores(data_all[i]['text'])['neu'])
+    vs_neg.append(analyzer.polarity_scores(data_all[i]['text'])['neg'])
 
+twitter_df = DataFrame({'ID': tweet_id,
+                        'Date': date,
+                        'Tweet': tweet,
+                        'Favourites': number_favourites,
+                        'Retweets': number_retweets,
+                        'Timezone': timezone,
+                        'Compound': vs_compound,
+                        'Positive': vs_pos,
+                        'Neutral': vs_neu,
+                        'Negative': vs_neg})
+twitter_df = twitter_df[['ID', 'Date', 'Tweet', 'Favourites', 'Retweets', 'Timezone', 
+                        'Compound', 'Positive', 'Neutral', 'Negative']]
+twitter_df2 = twitter_df[['ID', 'Date', 'Favourites', 'Retweets', 'Timezone', 
+                        'Compound', 'Positive', 'Neutral', 'Negative']]
 
+twitter_df2.to_csv("/Users/jburchell/Documents/Twitter API analysis/Raw twitter data.csv",
+                  sep = ",", encoding = "utf-8")
+                        
+twitter_df[:20]
