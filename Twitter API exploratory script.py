@@ -3,6 +3,11 @@ import tweepy
 import json
 import time
 
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import numpy as np
+from pandas import Series, DataFrame
+import pandas as pd
+
 # Enter authorisations
 consumer_key = "XXX"
 consumer_secret = "XXX"
@@ -43,15 +48,46 @@ list(set(ids1).intersection(ids2))
 results = results1.values()[1] + results2.values()[1]
 len(results)
 
-# Ok, now let's automate this to get 100,000 results
+# Ok, now let's automate this to get 50,000 results
 data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
 data_all = data.values()[1]
 
+while (len(data_all) <= 200):
+    time.sleep(2)
+    last = data_all[-1]['id']
+    data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed', max_id = last)
+    data_all += data.values()[1][1:]
 
-time.sleep(2)
-last = data_all[-1]['id']
-api.search(q = searchquery, count = 1000, lang = 'en', result_type = 'mixed', max_id = '816071127286083584')
+# Checking I got rid of the duplicate extraction of the last tweet
+ids = []
+for i in range(0, 298):
+    ids.append(data_all[i]['id'])
 
+set([x for x in ids if ids.count(x) > 1])
+len(ids) != len(set(ids))
 
+# Final call
+data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
+data_all = data.values()[1]
+
+while (len(data_all) <= 50000):
+    time.sleep(2)
+    last = data_all[-1]['id']
+    data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed', max_id = last)
+    data_all += data.values()[1][1:]
+    
+# Feed into a dataframe
+date = []
+tweet = []
+number_favourites = []
+number_retweets = []
+timezone = []
+
+for i in range(0, len(data_all)):
+    date.append(data_all[i]['created_at'])
+    tweet.append(data_all[i]['text'])
+    number_favourites.append(data_all[i]['favorite_count'])
+    number_retweets.append(data_all[i]['retweet_count'])
+    timezone.append(data_all[i]['user']['time_zone'])
 
 
