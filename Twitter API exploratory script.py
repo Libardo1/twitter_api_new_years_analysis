@@ -116,14 +116,8 @@ twitter_df = DataFrame({'Date': date,
                         'Negative': vs_neg})
 twitter_df = twitter_df[['Date', 'Tweet', 'Favourites', 'Retweets', 'Timezone', 
                         'Compound', 'Positive', 'Neutral', 'Negative']]
-#twitter_df2 = twitter_df[['ID', 'Date', 'Favourites', 'Retweets', 'Timezone', 
-#                        'Compound', 'Positive', 'Neutral', 'Negative']]
 
-#twitter_df2.to_csv("/Users/jburchell/Documents/Twitter API analysis/Raw twitter data.csv",
-#                  sep = ",", encoding = "utf-8")
-                        
-twitter_df[:20]
-
+# Create categories of resolutions (based on Wikipedia's classifications)
 twitter_df['Physical Health'] = np.where(twitter_df['Tweet'].str.contains('weight|fit|exercise|gym|muscle|health|water|smoking|alcohol|drinking|walk|run|swim', 
     flags = re.IGNORECASE), 1, 0)
 twitter_df['Learning and Career'] = np.where(twitter_df['Tweet'].str.contains('business|job|career|professional|study|learn|develop|advance|grades|school|university|read|study|skill|education', 
@@ -136,7 +130,8 @@ twitter_df['Relationships'] = np.where(twitter_df['Tweet'].str.contains('relatio
     flags = re.IGNORECASE), 1, 0)
 twitter_df['Travel and Holidays'] = np.where(twitter_df['Tweet'].str.contains('travel|trips|holiday|vacation|country|foreign|overseas|abroad', 
     flags = re.IGNORECASE), 1, 0)
-    
+
+# Have a look whether there is variance in the compound sentiment score for each - yep, we're good to go ahead
 len(twitter_df[(twitter_df['Compound'] == 0)])
 twitter_df['Compound'][twitter_df['Physical Health'] == 1].mean()
 twitter_df['Compound'][twitter_df['Learning and Career'] == 1].mean()
@@ -145,65 +140,9 @@ twitter_df['Compound'][twitter_df['Finances'] == 1].mean()
 twitter_df['Compound'][twitter_df['Relationships'] == 1].mean()
 twitter_df['Compound'][twitter_df['Travel and Holidays'] == 1].mean()
 
-twitter_df['Compound'][(twitter_df['Physical Health'] == 1) & (twitter_df['Compound'] != 0)].mean()
-twitter_df['Compound'][(twitter_df['Learning and Career'] == 1) & (twitter_df['Compound'] != 0)].mean()
-twitter_df['Compound'][(twitter_df['Mental Wellbeing'] == 1) & (twitter_df['Compound'] != 0)].mean()
-twitter_df['Compound'][(twitter_df['Finances'] == 1) & (twitter_df['Compound'] != 0)].mean()
-twitter_df['Compound'][(twitter_df['Relationships'] == 1) & (twitter_df['Compound'] != 0)].mean()
-twitter_df['Compound'][(twitter_df['Travel and Holidays'] == 1) & (twitter_df['Compound'] != 0)].mean()
-
-twitter_df['Positive'][twitter_df['Physical Health'] == 1].mean()
-twitter_df['Positive'][twitter_df['Learning and Career'] == 1].mean()
-twitter_df['Positive'][twitter_df['Mental Wellbeing'] == 1].mean()
-twitter_df['Positive'][twitter_df['Finances'] == 1].mean()
-twitter_df['Positive'][twitter_df['Relationships'] == 1].mean()
-twitter_df['Positive'][twitter_df['Travel and Holidays'] == 1].mean()
-
-len(twitter_df[(twitter_df['Retweets'] == 0)])
-len(twitter_df[(twitter_df['Favourites'] == 0)])
-len(twitter_df[(twitter_df['Favourites'] == 0) & (twitter_df['Compound'] != 0)])
-len(twitter_df[(twitter_df['Favourites'] == 1)])
-
-len(twitter_df[(twitter_df['Compound'] == 0)])
-sum(twitter_df['Physical Health'])
-sum(twitter_df['Physical Health'][(twitter_df['Compound'] != 0)])
-
-twitter_df['Favourites'][twitter_df['Physical Health'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Physical Health'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'][twitter_df['Learning and Career'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Learning and Career'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'][twitter_df['Mental Wellbeing'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Mental Wellbeing'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'][twitter_df['Finances'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Finances'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'][twitter_df['Relationships'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Relationships'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'][twitter_df['Travel and Holidays'] == 1].mean()
-twitter_df['Favourites'][(twitter_df['Travel and Holidays'] == 1) & (twitter_df['Favourites'] != 0)].mean()
-
-twitter_df['Favourites'].mean()
-sp.trim_mean(twitter_df['Favourites'], 0.025)
-twitter_df['Favourites'].median()
-
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Physical Health'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Learning and Career'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Mental Wellbeing'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Finances'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Relationships'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-sp.trim_mean(twitter_df['Favourites'][(twitter_df['Travel and Holidays'] == 1) &
-    (twitter_df['Favourites'] != 0)], 0.025)
-    
-
+# After finding no variance in the number of favourites when using sensible measures of central
+# tendency (trimmed means and medians), I went with looking at the percent of tweets that got above
+# a threshold of favourites (trying 5 or more)
 def calculatePercentFavourite(resolution, favourites):
     number_with_favourites = float(len(twitter_df[(twitter_df[resolution] == 1) & (twitter_df['Favourites'] >= favourites)]))
     total_number = float(len(twitter_df[(twitter_df[resolution] == 1)]))
@@ -223,6 +162,18 @@ calculatePercentFavourite('Finances', 10)
 calculatePercentFavourite('Relationships', 10)
 calculatePercentFavourite('Travel and Holidays', 10)
 
+# 5 favourites or more has good variance, let's go with that
+twitter_df['Five or more favourites'] = np.where(twitter_df['Favourites'] >= 5, 1, 0)
 
+# Now let's write the data for presenting in the blog post into a CSV, in case we lose it 
+twitter_df_clean = twitter_df
+twitter_df_clean = twitter_df_clean[['Date', 'Favourites', 'Retweets', 'Timezone', 'Compound', 'Positive', 
+                         'Neutral', 'Negative', 'Physical Health', 'Learning and Career',
+                         'Mental Wellbeing', 'Finances', 'Relationships', 'Travel and Holidays',
+                         'Five or more favourites']]
+
+#twitter_df_clean['Tweet'] = twitter_df_clean['Tweet'].str.replace("|", ",")
+twitter_df_clean.to_csv("/Users/jodieburchell/Documents/Twiiter API analysis/Raw twitter data.csv",
+                        sep = ",")
         
 
