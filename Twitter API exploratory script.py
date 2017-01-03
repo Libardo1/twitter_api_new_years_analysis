@@ -18,7 +18,7 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_key, access_secret)
 
 # Set search term
-searchquery = "new years resolution -RT"
+searchquery = '"new years resolution" -filter:retweets'
 
 # Set up API call
 api = tweepy.API(auth, parser = tweepy.parsers.JSONParser())
@@ -77,6 +77,10 @@ while (len(data_all) <= 10000):
     data_all += data.values()[1][1:]
     
 # Feed into a dataframe
+# NOTE: once I finish pulling these data out, I need to check that I am getting the *right* bits of
+# data to go with the specific tweet. Especially confusing in the case of retweets, so need to just
+# doublecheck I have that right.
+
 analyzer = SentimentIntensityAnalyzer()
 
 tweet_id = []
