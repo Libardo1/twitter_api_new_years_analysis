@@ -39,3 +39,19 @@ list(set(ids1).intersection(ids2))
 # The last element in list 1 is returned again in list 2. Therefore, all calls subsequent to the first 
 # should only use results from index [1] onwards (excluding the first tweet)
 
+# Now to append the results of multiple API calls. To do this, I'll simply add the lists together.
+results = results1.values()[1] + results2.values()[1]
+len(results)
+
+# Ok, now let's automate this to get 100,000 results
+data = api.search(q = searchquery, count = 100, lang = 'en', result_type = 'mixed')
+data_all = data.values()[1]
+
+
+time.sleep(2)
+last = data_all[-1]['id']
+api.search(q = searchquery, count = 1000, lang = 'en', result_type = 'mixed', max_id = '816071127286083584')
+
+
+
+
