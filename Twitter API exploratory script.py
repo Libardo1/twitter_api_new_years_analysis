@@ -24,6 +24,8 @@ searchquery = '"new years resolution" -filter:retweets'
 # Set up API call
 api = tweepy.API(auth, parser = tweepy.parsers.JSONParser())
 
+# Docs for structuring the call: https://dev.twitter.com/rest/reference/get/search/tweets
+
 # The call only seems to return a max of 100 tweets. As such, I need to run multiple calls,
 # which start after the last tweet returned in the previous call (search options here: https://dev.twitter.com/rest/reference/get/search/tweets)
 results1 = api.search(q = searchquery, count = 1, lang = 'en', result_type = 'mixed')
