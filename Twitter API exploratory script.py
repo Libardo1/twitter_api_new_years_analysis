@@ -176,4 +176,10 @@ twitter_df_clean = twitter_df_clean[['Date', 'Favourites', 'Retweets', 'Timezone
 twitter_df_clean.to_csv("/Users/jodieburchell/Documents/Twiiter API analysis/Raw twitter data.csv",
                         sep = ",")
         
+# Ideas for presenting the data
+# - Distribution of positive/positive + negative/compound sentiment ratings for each of the resolutions on a scatterplot (one for each line)
+# - Weighted scatterplot of compound sentiment score (x-axis) by percent with 5 or more favourites (y-axis) by number making resolution
+# - Examples of each of the resolutions
+
+
 
