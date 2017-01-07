@@ -183,5 +183,51 @@ twitter_df_clean.to_csv("/Users/jodieburchell/Documents/Twiiter API analysis/Raw
 # - Weighted scatterplot of compound sentiment score (x-axis) by percent with 5 or more favourites (y-axis) by number making resolution
 # - Examples of each of the resolutions
 
+# Create single resolution variable
+col_list= ['Physical Health', 'Learning and Career', 'Mental Wellbeing',
+           'Finances', 'Relationships', 'Travel and Holidays']
+col_list
+twitter_df['Number of resolutions'] = twitter_df[col_list].sum(axis=1)
+sum(twitter_df['Number of resolutions'] >= 1)
+sum(twitter_df['Number of resolutions'] > 1)
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Physical Health'] == 1))
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Learning and Career'] == 1))
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Mental Wellbeing'] == 1))
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Finances'] == 1))
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Relationships'] == 1))
+sum((twitter_df['Number of resolutions'] > 1) & (twitter_df['Travel and Holidays'] == 1))
+
+def createResolutionVariable(resolution):
+    return np.where((twitter_df[resolution] == 1) & (twitter_df['Number of resolutions'] < 2), 
+    resolution, twitter_df['Resolution type'])
+      
+twitter_df['Resolution type'] = np.where((twitter_df['Physical Health'] == 1) & (twitter_df['Number of resolutions'] < 2), 'Physical Health', '')
+twitter_df['Resolution type'] = createResolutionVariable('Learning and Career')
+twitter_df['Resolution type'] = createResolutionVariable('Mental Wellbeing')
+twitter_df['Resolution type'] = createResolutionVariable('Finances')
+twitter_df['Resolution type'] = createResolutionVariable('Relationships')
+twitter_df['Resolution type'] = createResolutionVariable('Travel and Holidays')
+
+sum(twitter_df['Resolution type'] == 'Physical Health')
+sum(twitter_df['Resolution type'] == 'Learning and Career')
+sum(twitter_df['Resolution type'] == 'Mental Wellbeing')
+sum(twitter_df['Resolution type'] == 'Finances')
+sum(twitter_df['Resolution type'] == 'Relationships')
+sum(twitter_df['Resolution type'] == 'Travel and Holidays')
+
+def viewMultipleTweet(row):
+    return (twitter_df.loc[twitter_df['Number of resolutions'] > 1].iloc[row]['Tweet']
+
+def setResolutionType(row, replace_resolution):
+    indexn = twitter_df[twitter_df['Number of resolutions'] > 1].index.tolist()[row]
+    twitter_df.loc[twitter_df.index == indexn, 'Resolution type'] = replace_resolution
+
+viewMultipleTweet(1)
+setResolutionType(1, 'Learning and Career')
+
+
+
+ggplot(aes(x = 'Compound', y = 'Physical Health'), data = twitter_df) + \
+    geom_point()
 
 
