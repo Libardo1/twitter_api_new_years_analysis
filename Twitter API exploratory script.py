@@ -9,6 +9,8 @@ import numpy as np
 from pandas import Series, DataFrame
 import pandas as pd
 
+from ggplot import *
+
 # Enter authorisations
 consumer_key = "XXX"
 consumer_secret = "XXX"
@@ -23,8 +25,6 @@ searchquery = '"new years resolution" -filter:retweets'
 
 # Set up API call
 api = tweepy.API(auth, parser = tweepy.parsers.JSONParser())
-
-# Docs for structuring the call: https://dev.twitter.com/rest/reference/get/search/tweets
 
 # The call only seems to return a max of 100 tweets. As such, I need to run multiple calls,
 # which start after the last tweet returned in the previous call (search options here: https://dev.twitter.com/rest/reference/get/search/tweets)
@@ -130,7 +130,7 @@ twitter_df['Finances'] = np.where(twitter_df['Tweet'].str.contains('save|saving|
     flags = re.IGNORECASE), 1, 0)
 twitter_df['Relationships'] = np.where(twitter_df['Tweet'].str.contains('relationship|friend|boyfriend|girlfriend|fiance|husband|wife|engaged|wedding|married|pregnant|child|kid|family|parent|father|dad|mother|mom|mum|brother|sister|dog|cat', 
     flags = re.IGNORECASE), 1, 0)
-twitter_df['Travel and Holidays'] = np.where(twitter_df['Tweet'].str.contains('travel|trips|holiday|vacation|country|foreign|overseas|abroad', 
+twitter_df['Travel and Holidays'] = np.where(twitter_df['Tweet'].str.contains('travel|trip|holiday|vacation|country|foreign|overseas|abroad', 
     flags = re.IGNORECASE), 1, 0)
 
 # Have a look whether there is variance in the compound sentiment score for each - yep, we're good to go ahead
@@ -177,11 +177,6 @@ twitter_df_clean = twitter_df_clean[['Date', 'Favourites', 'Retweets', 'Timezone
 #twitter_df_clean['Tweet'] = twitter_df_clean['Tweet'].str.replace("|", ",")
 twitter_df_clean.to_csv("/Users/jodieburchell/Documents/Twiiter API analysis/Raw twitter data.csv",
                         sep = ",")
-        
-# Ideas for presenting the data
-# - Distribution of positive/positive + negative/compound sentiment ratings for each of the resolutions on a scatterplot (one for each line)
-# - Weighted scatterplot of compound sentiment score (x-axis) by percent with 5 or more favourites (y-axis) by number making resolution
-# - Examples of each of the resolutions
 
 # Create single resolution variable
 col_list= ['Physical Health', 'Learning and Career', 'Mental Wellbeing',
@@ -222,12 +217,77 @@ def setResolutionType(row, replace_resolution):
     indexn = twitter_df[twitter_df['Number of resolutions'] > 1].index.tolist()[row]
     twitter_df.loc[twitter_df.index == indexn, 'Resolution type'] = replace_resolution
 
+# Need to check 670 tweets
+viewMultipleTweet(0)
+setResolutionType(0, 'Mental Wellbeing')
+
 viewMultipleTweet(1)
 setResolutionType(1, 'Learning and Career')
 
+viewMultipleTweet(2)
+setResolutionType(2, 'Physical Health')
 
+viewMultipleTweet(3)
+setResolutionType(3, 'Physical Health')
 
-ggplot(aes(x = 'Compound', y = 'Physical Health'), data = twitter_df) + \
-    geom_point()
+viewMultipleTweet(4)
+setResolutionType(4, 'Physical Health')
+
+viewMultipleTweet(5)
+setResolutionType(5, 'Mental Wellbeing')
+
+viewMultipleTweet(6)
+setResolutionType(6, 'Learning and Career')
+
+viewMultipleTweet(7)
+setResolutionType(7, '')
+
+viewMultipleTweet(8)
+setResolutionType(8, 'Physical Health')
+
+viewMultipleTweet(9)
+setResolutionType(9, 'Mental Wellbeing')
+
+viewMultipleTweet(10)
+setResolutionType(10, 'Mental Wellbeing')
+
+viewMultipleTweet(11)
+setResolutionType(11, 'Mental Wellbeing')
+
+viewMultipleTweet(12)
+setResolutionType(12, 'Physical Health')
+
+viewMultipleTweet(13)
+setResolutionType(13, 'Physical Health')
+
+viewMultipleTweet(14)
+setResolutionType(14, 'Relationships')
+
+viewMultipleTweet(15)
+setResolutionType(15, 'Physical Health')
+
+viewMultipleTweet(16)
+setResolutionType(16, 'Mental Wellbeing')
+
+viewMultipleTweet(17)
+setResolutionType(17, 'Mental Wellbeing')
+
+viewMultipleTweet(18)
+setResolutionType(18, 'Learning and Career')
+
+viewMultipleTweet(19)
+setResolutionType(19, 'Mental Wellbeing')
+
+viewMultipleTweet(20)
+setResolutionType(20, 'Mental Wellbeing')
+
+viewMultipleTweet(21)
+setResolutionType(21, 'Mental Wellbeing')
+
+viewMultipleTweet(22)
+setResolutionType(22, 'Mental Wellbeing')
+
+viewMultipleTweet(23)
+setResolutionType(23, 'Mental Wellbeing')
 
 
